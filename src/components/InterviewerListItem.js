@@ -11,13 +11,13 @@ export default function InterviewerListItem({avatar,
       "interviewers__item-image": avatar
     });
     return (
-      <li className={interviewerClass} onClick={setInterviewer}>
-      <img
-        className="interviewers__item-image"
-        src={avatar}
-        alt={name}
-      />
-      {selected && name}
-    </li>
-    )
+      <li className={interviewerClass} onClick= {() => setInterviewer(name)}>
+        <img
+          className="interviewers__item-image"
+          src={avatar}
+          alt={name}
+        />
+        {selected && name}
+      </li>
+    );
   }
