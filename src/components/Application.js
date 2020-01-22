@@ -1,8 +1,88 @@
 import React, { useState } from "react";
-
+import Appointment from "../components/Appointment";
 import "components/Application.scss";
 import "components/InterviewerListItem.scss";
 import DayList from "../components/DayList";
+
+const appointments = [
+  {
+    id: 1,
+    time: "10am",
+  },
+  {
+    id: 2,
+    time: "11am",
+    interview: {
+      student: "Lydia Miller-Jones",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  },
+  {
+    id: 2,
+    time: "12pm",
+    interview: {
+      student: "Lydia Miller-Jones",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  },
+  {
+    id: 3,
+    time: "1pm",
+    interview: {
+      student: "Prateek Diwedi",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  },
+  {
+    id: 4,
+    time: "2pm",
+    interview: {
+      student: "LUKE",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  },
+  {
+    id: 5,
+    time: "3pm",
+    interview: {
+      student: "Porson",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  },
+  {
+    id: 6,
+    time: "4pm",
+    interview: {
+      student: "Eminem",
+      interviewer: {
+        id: 1,
+        name: "Sylvia Palmer",
+        avatar: "https://i.imgur.com/LpaY82x.png",
+      }
+    }
+  }
+];
+
 
 
 const days = [
@@ -22,6 +102,7 @@ const days = [
     spots: 0,
   },
 ];
+
 
 
 
@@ -56,10 +137,18 @@ export default function Application(props) {
 
       </section>
       <section className="schedule">
-        {/* Replace this with the schedule elements durint the "The Scheduler" activity. */}
-
+        
+        {appointments.map(appointments => {
+          return (
+            <Appointment
+            key={appointments.id}
+            time={appointments.time}
+            interview={appointments.interview}
+            />
+          )
+        })}
+        <Appointment key="last" time="5pm" />
       </section>
     </main>
   );
 }
-
