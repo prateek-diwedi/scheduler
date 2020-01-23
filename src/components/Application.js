@@ -5,6 +5,8 @@ import "components/InterviewerListItem.scss";
 import DayList from "../components/DayList";
 import axios from "axios";
 
+//-------------------------------------- API's ----------------------------------//
+const dayList = "api/days"
 const appointments = [
   {
     id: 1,
@@ -90,7 +92,7 @@ export default function Application(props) {
   // ------------------------------ getting days from the api ------------------------------- //
 
   useEffect(() => {
-    axios.get("api/days", { headers:{'Content-Type': 'application/json'} })
+    axios.get( dayList, { headers:{'Content-Type': 'application/json'} })
       .then((response) => {
         setDays(response.data);
         console.log("days --->>>", days);
