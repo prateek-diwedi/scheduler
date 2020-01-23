@@ -169,7 +169,7 @@ const appointments = [
         avatar: "https://i.imgur.com/LpaY82x.png",
       }
     }
-  }
+  },
   {
     id: 2,
     time: "1pm",
