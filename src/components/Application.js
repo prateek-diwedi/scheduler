@@ -4,111 +4,110 @@ import "components/Application.scss";
 import "components/InterviewerListItem.scss";
 import DayList from "../components/DayList";
 import axios from "axios";
+import { getAppointmentsForDay } from "../helpers/selectors";
 
 //-------------------------------------- API's ----------------------------------//
-const dayList = "api/days";
-const appintmentList = "/api/appointments";
 
-const appointments = [
-  {
-    id: 1,
-    time: "10am",
-  },
-  {
-    id: 2,
-    time: "11am",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 2,
-    time: "12pm",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 3,
-    time: "1pm",
-    interview: {
-      student: "Prateek Diwedi",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 4,
-    time: "2pm",
-    interview: {
-      student: "LUKE",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 5,
-    time: "3pm",
-    interview: {
-      student: "Porson",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 6,
-    time: "4pm",
-    interview: {
-      student: "Eminem",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  }
-];
+
+// const appointments = [
+//   {
+//     id: 1,
+//     time: "10am",
+//   },
+//   {
+//     id: 2,
+//     time: "11am",
+//     interview: {
+//       student: "Lydia Miller-Jones",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 2,
+//     time: "12pm",
+//     interview: {
+//       student: "Lydia Miller-Jones",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 3,
+//     time: "1pm",
+//     interview: {
+//       student: "Prateek Diwedi",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 4,
+//     time: "2pm",
+//     interview: {
+//       student: "LUKE",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 5,
+//     time: "3pm",
+//     interview: {
+//       student: "Porson",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 6,
+//     time: "4pm",
+//     interview: {
+//       student: "Eminem",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   }
+// ];
 
 
 export default function Application(props) {
 
   // ------------------------------ getting days from the api ------------------------------- //
   const setDay = day => setState({ ...state, day });
-  const setDays = days => setState(prev => ({ ...prev, days }));
+  //const setDays = days => setState(prev => ({ ...prev, days }));
 
-  // useEffect(() => {
-  //   axios.get(dayList, { headers: { 'Content-Type': 'application/json' } })
-  //     .then((response) => {
-  //       console.log("RESPONSE", response);
-  //       setState({...state, days: response.data});
-        
-  //     }).catch((error) => {
-  //       console.log(error);
-  //       console.log(error.response.headers);
-  //       console.log(error.response.data);
-  //     });
-  // });
+
   useEffect(() => {
-    axios.get(dayList).then(response => setDays(response.data));
+    const day = axios.get("api/days");
+    const appointment = axios.get("/api/appointments");
+
+    Promise.all([
+      Promise.resolve(day),
+      Promise.resolve(appointment),
+    ]).then((all) => {
+      setState(prev => ({ days: all[0].data, appointments: all[1].data }))
+      console.log('all---->', all);
+    });
+
   }, []);
 
   // ------------------------------ use state for setting days data --------------------------//
@@ -118,6 +117,7 @@ export default function Application(props) {
     appointments: {}
   });
   console.log('state---->>', state);
+  const pen = getAppointmentsForDay(state, state.day)
   return (
     <main className="layout">
       <section className="sidebar">
@@ -148,7 +148,7 @@ export default function Application(props) {
       </section>
       <section className="schedule">
 
-        {appointments.map(appointments => {
+        {pen.map(appointments => {
           return (
             <Appointment
               key={appointments.id}
