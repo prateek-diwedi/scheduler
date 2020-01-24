@@ -5,107 +5,26 @@ import "components/InterviewerListItem.scss";
 import DayList from "../components/DayList";
 import axios from "axios";
 import { getAppointmentsForDay } from "../helpers/selectors";
+import { getInterview } from "../helpers/selectors";
 
-//-------------------------------------- API's ----------------------------------//
-
-
-// const appointments = [
-//   {
-//     id: 1,
-//     time: "10am",
-//   },
-//   {
-//     id: 2,
-//     time: "11am",
-//     interview: {
-//       student: "Lydia Miller-Jones",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   {
-//     id: 2,
-//     time: "12pm",
-//     interview: {
-//       student: "Lydia Miller-Jones",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   {
-//     id: 3,
-//     time: "1pm",
-//     interview: {
-//       student: "Prateek Diwedi",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   {
-//     id: 4,
-//     time: "2pm",
-//     interview: {
-//       student: "LUKE",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   {
-//     id: 5,
-//     time: "3pm",
-//     interview: {
-//       student: "Porson",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   },
-//   {
-//     id: 6,
-//     time: "4pm",
-//     interview: {
-//       student: "Eminem",
-//       interviewer: {
-//         id: 1,
-//         name: "Sylvia Palmer",
-//         avatar: "https://i.imgur.com/LpaY82x.png",
-//       }
-//     }
-//   }
-// ];
 
 
 export default function Application(props) {
 
-  // ------------------------------ getting days from the api ------------------------------- //
+
   const setDay = day => setState({ ...state, day });
-  //const setDays = days => setState(prev => ({ ...prev, days }));
 
-
+  // --------------------------------- getting data from api ------------------------------//
   useEffect(() => {
     const day = axios.get("api/days");
     const appointment = axios.get("/api/appointments");
-
+    const interviewer = axios.get("/api/interviewers");
     Promise.all([
       Promise.resolve(day),
       Promise.resolve(appointment),
+      Promise.resolve(interviewer)
     ]).then((all) => {
-      setState(prev => ({ days: all[0].data, appointments: all[1].data }))
-      console.log('all---->', all);
+      setState(prev => ({ days: all[0].data, appointments: all[1].data, interviews: all[2].data }))
     });
 
   }, []);
@@ -114,15 +33,33 @@ export default function Application(props) {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
-    appointments: {}
+    appointments: {},
+    interviews: {}
   });
-  console.log('state---->>', state);
-  const pen = getAppointmentsForDay(state, state.day)
+
+  const appointments = getAppointmentsForDay(state, state.day);
+
+  const schedule = appointments.map((appointment) => {
+    
+    const interview = getInterview(state, appointment.interview);
+    // console.log("interviewer in application", interviewer);
+    return (
+      <Appointment
+        key={appointment.id}
+        id={appointment.id}
+        time={appointment.time}
+        interview={interview}
+        interviewers={state.interviewers}
+        //interviewer={interviewer}
+      />
+    );
+  });
+
+
   return (
     <main className="layout">
       <section className="sidebar">
-        {/* Replace this with the sidebar elements during the "Project Setup & Familiarity" activity. */}
-
+        
         <img
           className="sidebar--centered"
           src="images/logo.png"
@@ -147,17 +84,8 @@ export default function Application(props) {
 
       </section>
       <section className="schedule">
-
-        {pen.map(appointments => {
-          return (
-            <Appointment
-              key={appointments.id}
-              time={appointments.time}
-              interview={appointments.interview}
-            />
-          )
-        })}
-        <Appointment key="last" time="5pm" />
+        {schedule}
+        <Appointment interviewers={state.interviewers} key="last" time="5pm" />
       </section>
     </main>
   );

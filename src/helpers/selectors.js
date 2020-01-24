@@ -12,13 +12,16 @@ export const getAppointmentsForDay = (state, day) => {
   return appointment;
 };
 
-// export const getInterview = ( state, interview ) => {
-//   if (!interview) {
-//     return null;
-//   } else {
-//     const student = interview.student;
-//     const interviewer = state.interviewers[interview.interviewer];
-//     const interviewObj = { student, interviewer };
-//     return interviewObj;
-//   }
-// };
+export const getInterview = ( state, interview ) => {
+  if (!interview) {
+    return null;
+  } else {
+    const student = interview.student;
+    console.log('interviewer -->', interview);
+    console.log("state in selector --->>", state);
+    const interviewer = state.interviews[interview.interviewer];
+    const interviewObj = { student, interviewer };
+    console.log('interviewer --->>', interviewer);
+    return interviewObj;
+  }
+};
