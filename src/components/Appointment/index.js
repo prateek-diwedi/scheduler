@@ -44,7 +44,7 @@ export default function Appointment({
       )}
       {mode === CREATE && (
         <Form
-          interviewers={interviewers}
+          interviewers={Object.values(interviewers)}
           //onSave={ () => save()}
           onCancel={ () => back()}
         />

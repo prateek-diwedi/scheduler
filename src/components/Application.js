@@ -4,62 +4,78 @@ import "components/Application.scss";
 import "components/InterviewerListItem.scss";
 import DayList from "../components/DayList";
 import axios from "axios";
-import { getAppointmentsForDay } from "../helpers/selectors";
-import { getInterview } from "../helpers/selectors";
-
+import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "../helpers/selectors";
 
 
 export default function Application(props) {
-
 
   const setDay = day => setState({ ...state, day });
 
   // --------------------------------- getting data from api ------------------------------//
   useEffect(() => {
-    const day = axios.get("api/days");
+    const days = axios.get("api/days");
     const appointment = axios.get("/api/appointments");
-    const interviewer = axios.get("/api/interviewers");
+    const interviewers = axios.get("/api/interviewers");
     Promise.all([
-      Promise.resolve(day),
+      Promise.resolve(days),
       Promise.resolve(appointment),
-      Promise.resolve(interviewer)
+      Promise.resolve(interviewers)
     ]).then((all) => {
-      setState(prev => ({ days: all[0].data, appointments: all[1].data, interviews: all[2].data }))
+      setState(prev => ({
+        days: all[0].data,
+        appointments: all[1].data,
+        interviewers: all[2].data
+      }))
     });
 
   }, []);
+
+  // -------------------------------------- function to save --------------------------------- //
+  function save(name, interviewer) {
+    const interview = {
+      student: name,
+      interviewer
+    };
+  }
+  
 
   // ------------------------------ use state for setting days data --------------------------//
   const [state, setState] = useState({
     day: "Monday",
     days: [],
     appointments: {},
-    interviews: {}
+    interviews: {},
+    interviewers: {}
   });
 
   const appointments = getAppointmentsForDay(state, state.day);
 
+
   const schedule = appointments.map((appointment) => {
-    
     const interview = getInterview(state, appointment.interview);
-    // console.log("interviewer in application", interviewer);
+    // const interviewers = getInterview(appointment.interviewers)
+    console.log("interviewerssss in application", state.interviewers);
+    console.log("interview in application --->>", interview);
     return (
       <Appointment
         key={appointment.id}
         id={appointment.id}
         time={appointment.time}
         interview={interview}
-        interviewers={state.interviewers}
-        //interviewer={interviewer}
+        interviewers={getInterviewersForDay(state, state.day)}
       />
     );
   });
+
+  function bookInterview(id, interview) {
+    console.log(id, interview);
+  }
 
 
   return (
     <main className="layout">
       <section className="sidebar">
-        
+
         <img
           className="sidebar--centered"
           src="images/logo.png"
