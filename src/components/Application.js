@@ -30,14 +30,56 @@ export default function Application(props) {
 
   }, []);
 
-  // -------------------------------------- function to save --------------------------------- //
-  function save(name, interviewer) {
-    const interview = {
-      student: name,
-      interviewer
+
+  //// ----------------------------------- book interviews ------------------------------------//
+  function bookInterview(id, interview) {
+
+    console.log("booking made", id, interview);
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
     };
+
+    //post to server
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
+    return axios
+      .put(`/api/appointments/${id}`, { interview })
+      .then(() => {
+        setState({
+          ...state,
+          appointments
+        });
+      });
   }
-  
+
+  /// --------------------------------------- cancel booking -----------------------------------//
+  function cancelInterview(id, interview) {
+    console.log("canceled booking", id, interview);
+
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
+    return axios
+      .delete(`/api/appointments/${id}`, { interview: null})
+      .then(() => {
+        setState({
+          ...state,
+          appointments
+        });
+      });
+  }
+
 
   // ------------------------------ use state for setting days data --------------------------//
   const [state, setState] = useState({
@@ -53,7 +95,6 @@ export default function Application(props) {
 
   const schedule = appointments.map((appointment) => {
     const interview = getInterview(state, appointment.interview);
-    // const interviewers = getInterview(appointment.interviewers)
     console.log("interviewerssss in application", state.interviewers);
     console.log("interview in application --->>", interview);
     return (
@@ -61,15 +102,15 @@ export default function Application(props) {
         key={appointment.id}
         id={appointment.id}
         time={appointment.time}
+        bookInterview={bookInterview}
+        cancelInterview={cancelInterview}
         interview={interview}
         interviewers={getInterviewersForDay(state, state.day)}
       />
     );
   });
 
-  function bookInterview(id, interview) {
-    console.log(id, interview);
-  }
+
 
 
   return (
