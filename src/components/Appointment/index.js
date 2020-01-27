@@ -13,8 +13,6 @@ import Confirm from "../Appointment/Confirm";
 import "./styles.scss";
 import useVisualMode from "hooks/useVisualMode";
 import { getInterviewersForDay } from "helpers/selectors";
-//import bookInterview from "../Application";
-
 
 const EMPTY = "EMPTY";
 const SHOW = "SHOW";
@@ -71,11 +69,15 @@ export default function Appointment({
           onCancel={() => back()}
           onSave={(name, interviewer) => {
             transition(SAVING);
-            bookInterview(id, save(name, interviewer))
-              //transition(SHOW);
-              .then(() => transition(SHOW))
-              .catch((err) => console.log(err))
-            .catch(() => transition(ERROR_SAVE, true))
+            if (name && interviewer) {
+              bookInterview(id, save(name, interviewer))
+                //transition(SHOW);
+                .then(() => transition(SHOW))
+                .catch((err) => console.log(err))
+                .catch(error => transition(ERROR_SAVE, true))
+            } else {
+              transition(ERROR_SAVE)
+            }
           }}
         />
       )}
@@ -88,7 +90,7 @@ export default function Appointment({
             transition(DELETING, true)
             cancelInterview(id)
               .then(() => transition(EMPTY))
-              .catch(() => transition(ERROR_DELETE, true));
+              .catch(error => transition(ERROR_DELETE, true));
           }
           }
           message="Are you sure you would like to delete?"
@@ -98,26 +100,26 @@ export default function Appointment({
       {mode === DELETING && <Status message="DELETING" />}
 
       {mode === EDIT && (
-      <Form
-      interviewer={interview.interviewer}
-      name={interview && interview.student}
-      interviewers = {Object.values(interviewers)}
-      onSave={(name, interviewer) => {
-        transition(SAVING);
-        bookInterview(id,save(name, interviewer))
-        .then(() => transition(SHOW))
-        .catch(() => transition(ERROR_SAVE))
-      }}
-      onCancel={() => back()}
-    />)}
+        <Form
+          interviewer={interview.interviewer}
+          name={interview && interview.student}
+          interviewers={Object.values(interviewers)}
+          onSave={(name, interviewer) => {
+            transition(SAVING);
+            bookInterview(id, save(name, interviewer))
+              .then(() => transition(SHOW))
+              .catch(error => transition(ERROR_SAVE))
+          }}
+          onCancel={() => back()}
+        />)}
 
-    {mode === ERROR_SAVE && (
-      <Error message = "Could not save appointment!" onClose = {() => back()} />
-    )}
+      {mode === ERROR_SAVE && (
+        <Error message="Could not save the appointment!" onClose={() => back()} />
+      )}
 
-    {mode ===ERROR_DELETE && (
-      <Error message = "Could not delete the appointment!" onCloase = {() => back()} />
-    )}
+      {mode === ERROR_DELETE && (
+        <Error message="Could not delete the appointment!" onClose={() => back()} />
+      )}
     </article>
   );
 }

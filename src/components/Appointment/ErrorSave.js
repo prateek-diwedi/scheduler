@@ -1,14 +1,13 @@
 import React from "react";
 import "./styles.scss";
 
-
-export default function Error(props) {
+export default function ErrorSave(props) {
   return (
 
     <main className="appointment__card appointment__card--error">
       <section className="appointment__error-message">
         <h1 className="text--semi-bold">Error</h1>
-        <h3 className="text--light">{props.message}</h3>
+        <h3 className="text--light">Could not save the appointment</h3>
       </section>
       <img
         className="appointment__error-close"

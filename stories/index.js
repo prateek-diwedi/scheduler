@@ -18,6 +18,7 @@ import Show from "../src/components/Appointment/Show"
 import Confirm from "components/Appointment/Confirm";
 import Status from "components/Appointment/Status";
 import Error from "components/Appointment/Error";
+import ErrorSave from "components/Appointment/ErrorSave";
 //import { act } from "@testing-library/react";
 import Form from "components/Appointment/Form";
 
@@ -262,7 +263,13 @@ storiesOf("Appointment", module) //Initiates Storybook and registers our Appoint
   ))
   .add("Error", () => (
     <Error
-      message="Could not delete appointment."
+      message="Could not delete the appointment."
+      onClose={action("onClose")}
+    />
+  ))
+  .add("ErrorSave", () => (
+    <ErrorSave
+      message="Could not save the appointment."
       onClose={action("onClose")}
     />
   ))
