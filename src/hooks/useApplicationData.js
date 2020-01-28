@@ -4,16 +4,17 @@ import { getInterviewersForDay } from "../helpers/selectors";
 
 import axios from "axios";
 
-import { getAppointmentsForDay } from "../helpers/selectors";
+import { getAppointmentsForDay, findDayByAppointment } from "../helpers/selectors";
 
 
 
 export default function useApplicationData() {
-  // --------------------------------------------- use Reducer --------------------------------------- //
+  // --------------------------------------------- use Reducer ----------------------------------- //
   const SET_DAY = "SET_DAY";
   const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
   const SET_INTERVIEW = "SET_INTERVIEW";
-  const SET_INTERVIEWERS = "SET_INTERVIEWERS"
+  const SET_INTERVIEWERS = "SET_INTERVIEWERS";
+  const UPDATE_SPOTS = "UPDATE_SPOTS";
 
   function reducer(state, action) {
     switch (action.type) {
@@ -33,16 +34,45 @@ export default function useApplicationData() {
       case SET_INTERVIEW: {
         const appointment = {
           ...state.appointments[action.id],
-          interview: { ...action.interview }
+          interview: action.interview ? { ...action.interview } : null
         };
-  
+
         const appointments = {
           ...state.appointments,
           [action.id]: appointment
         };
-  
-        return {...state, appointments};
+
+        return { ...state, appointments };
       }
+
+      case SET_INTERVIEWERS: {
+        const result = getInterviewersForDay(state, state.day)
+        return { ...state, interviewersDay: result }
+      }
+
+      case UPDATE_SPOTS:
+        const dayId = findDayByAppointment(action.id, state);
+        const aptIds = state.days[dayId].appointments;
+        let openSpots = 0;
+        for (let i = 0; i < aptIds.length; i++) {
+          console.log('COUNTING: ', dayId, 'Interview: ' , state.appointments[aptIds[i]].interview)
+          if (!state.appointments[aptIds[i]].interview) {
+            openSpots += 1;
+          }
+        }
+        return {  
+          ...state,
+          days: state.days.map((item, index) => {
+             if (index !== dayId) {
+              return item
+            } else {
+              return {
+                ...item,
+                spots: openSpots
+              }
+            }
+          })
+        }
       default:
         throw new Error(
           `Tried to reduce with unsupported action type: ${action.type}`
@@ -60,25 +90,24 @@ export default function useApplicationData() {
     interviewers: {}
   });
 
-  //const setDay = day => dispatch({ ...state, day });
   function setDay(day) {
     dispatch({ type: SET_DAY, value: day })
   };
-
-  // const appointments = getAppointmentsForDay(state, state.day);
 
   //// ----------------------------------- book interviews ------------------------------------//
   function bookInterview(id, interview) {
     return axios
       .put(`/api/appointments/${id}`, { interview })
-      .then(()=>{dispatch({type: SET_INTERVIEW, interview : interview , id : id})})
+      .then(() => { dispatch({ type: SET_INTERVIEW, interview: interview, id: id }) })
+      .then(() => dispatch({ type: UPDATE_SPOTS, id: id }))
   }
 
   /// --------------------------------------- cancel booking -----------------------------------//
   function cancelInterview(id, interview) {
     return axios
       .delete(`/api/appointments/${id}`, { interview: null })
-      .then(()=>{dispatch({type: SET_INTERVIEW, interview : interview , id : id})})
+      .then(() => { dispatch({ type: SET_INTERVIEW, interview: interview, id: id }) })
+      .then(() => dispatch({ type: UPDATE_SPOTS, id: id }))
   }
 
   // --------------------------------- getting data from api ------------------------------//

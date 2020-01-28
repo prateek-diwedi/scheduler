@@ -28,3 +28,13 @@ export const getInterviewersForDay = (state, day) => {
   const dayInterviewers = dayObject.interviewers.map( interviewerId => state.interviewers[interviewerId] );
   return dayInterviewers;
 };
+
+export function findDayByAppointment(id, state) {
+  for (let i = 0; i < state.days.length; i++) {
+    for(let a of state.days[i].appointments) {
+      if (id === a) {
+        return i;
+      }
+    }
+  }
+};
