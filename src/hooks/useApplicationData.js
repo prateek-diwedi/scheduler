@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 
 import { getInterviewersForDay } from "../helpers/selectors";
 
@@ -9,8 +9,50 @@ import { getAppointmentsForDay } from "../helpers/selectors";
 
 
 export default function useApplicationData() {
+  // --------------------------------------------- use Reducer --------------------------------------- //
+  const SET_DAY = "SET_DAY";
+  const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
+  const SET_INTERVIEW = "SET_INTERVIEW";
+  const SET_INTERVIEWERS = "SET_INTERVIEWERS"
+
+  function reducer(state, action) {
+    switch (action.type) {
+      case SET_DAY:
+        return {
+          ...state,
+          day: action.value
+        }
+      case SET_APPLICATION_DATA:
+        return {
+          ...state,
+          days: action.days,
+          appointments: action.appointments,
+          interviewers: action.interviewers,
+          interviewersDay: action.interviewersDay
+        }
+      case SET_INTERVIEW: {
+        const appointment = {
+          ...state.appointments[action.id],
+          interview: { ...action.interview }
+        };
+  
+        const appointments = {
+          ...state.appointments,
+          [action.id]: appointment
+        };
+  
+        return {...state, appointments};
+      }
+      default:
+        throw new Error(
+          `Tried to reduce with unsupported action type: ${action.type}`
+        );
+    }
+  }
+
+
   // ------------------------------ use state for setting days data --------------------------//
-  const [state, setState] = useState({
+  const [state, dispatch] = useReducer(reducer, {
     day: "Monday",
     days: [],
     appointments: {},
@@ -18,57 +60,25 @@ export default function useApplicationData() {
     interviewers: {}
   });
 
-  const setDay = day => setState({ ...state, day });
+  //const setDay = day => dispatch({ ...state, day });
+  function setDay(day) {
+    dispatch({ type: SET_DAY, value: day })
+  };
 
-   const appointments = getAppointmentsForDay(state, state.day);
+  // const appointments = getAppointmentsForDay(state, state.day);
 
   //// ----------------------------------- book interviews ------------------------------------//
   function bookInterview(id, interview) {
-
-    console.log("booking made", id, interview);
-    const appointment = {
-      ...state.appointments[id],
-      interview: { ...interview }
-    };
-
-    //post to server
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment
-    };
-
     return axios
       .put(`/api/appointments/${id}`, { interview })
-      .then(() => {
-        setState({
-          ...state,
-          appointments
-        });
-      });
+      .then(()=>{dispatch({type: SET_INTERVIEW, interview : interview , id : id})})
   }
 
   /// --------------------------------------- cancel booking -----------------------------------//
   function cancelInterview(id, interview) {
-    console.log("canceled booking", id, interview);
-
-    const appointment = {
-      ...state.appointments[id],
-      interview: { ...interview }
-    };
-
-    const appointments = {
-      ...state.appointments,
-      [id]: appointment
-    };
-
     return axios
-      .delete(`/api/appointments/${id}`, { interview: null})
-      .then(() => {
-        setState({
-          ...state,
-          appointments
-        });
-      });
+      .delete(`/api/appointments/${id}`, { interview: null })
+      .then(()=>{dispatch({type: SET_INTERVIEW, interview : interview , id : id})})
   }
 
   // --------------------------------- getting data from api ------------------------------//
@@ -81,14 +91,15 @@ export default function useApplicationData() {
       Promise.resolve(appointment),
       Promise.resolve(interviewers)
     ]).then((all) => {
-      setState(prev => ({
+      dispatch({
+        type: SET_APPLICATION_DATA,
         days: all[0].data,
         appointments: all[1].data,
         interviewers: all[2].data
-      }))
+      })
     });
 
   }, []);
 
-  return {state, setDay, bookInterview, cancelInterview}
+  return { state, setDay, bookInterview, cancelInterview }
 } 

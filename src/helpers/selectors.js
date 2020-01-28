@@ -24,9 +24,7 @@ export const getInterview = ( state, interview ) => {
 };
 
 export const getInterviewersForDay = (state, day) => {
-  console.log('intervie helper --->> state', state);
   const dayObject = state.days.find( el => el.name === day);
   const dayInterviewers = dayObject.interviewers.map( interviewerId => state.interviewers[interviewerId] );
-  console.log("yayyyyyyyyyy", dayInterviewers);
   return dayInterviewers;
 };
