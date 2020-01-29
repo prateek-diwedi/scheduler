@@ -12,7 +12,7 @@ export const getAppointmentsForDay = (state, day) => {
   return appointment;
 };
 
-export const getInterview = ( state, interview ) => {
+export const getInterview = (state, interview) => {
   if (!interview) {
     return null;
   } else {
@@ -24,14 +24,14 @@ export const getInterview = ( state, interview ) => {
 };
 
 export const getInterviewersForDay = (state, day) => {
-  const dayObject = state.days.find( el => el.name === day);
-  const dayInterviewers = dayObject.interviewers.map( interviewerId => state.interviewers[interviewerId] );
+  const dayObject = state.days.find(el => el.name === day);
+  const dayInterviewers = dayObject.interviewers.map(interviewerId => state.interviewers[interviewerId]);
   return dayInterviewers;
 };
 
 export function findDayByAppointment(id, state) {
   for (let i = 0; i < state.days.length; i++) {
-    for(let a of state.days[i].appointments) {
+    for (let a of state.days[i].appointments) {
       if (id === a) {
         return i;
       }

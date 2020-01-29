@@ -55,15 +55,14 @@ export default function useApplicationData() {
         const aptIds = state.days[dayId].appointments;
         let openSpots = 0;
         for (let i = 0; i < aptIds.length; i++) {
-          console.log('COUNTING: ', dayId, 'Interview: ' , state.appointments[aptIds[i]].interview)
           if (!state.appointments[aptIds[i]].interview) {
             openSpots += 1;
           }
         }
-        return {  
+        return {
           ...state,
           days: state.days.map((item, index) => {
-             if (index !== dayId) {
+            if (index !== dayId) {
               return item
             } else {
               return {

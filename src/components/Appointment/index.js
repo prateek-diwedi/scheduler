@@ -48,8 +48,6 @@ export default function Appointment({
     interview ? SHOW : EMPTY
   );
 
-  console.log('INTERVIEWERS >>', interviewers)
-
   return (
     <article className="{Appointment}">
       <Header time={time} />
